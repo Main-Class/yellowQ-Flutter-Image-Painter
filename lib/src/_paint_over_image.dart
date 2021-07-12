@@ -16,29 +16,38 @@ import 'widgets/_text_dialog.dart';
 
 export '_image_painter.dart';
 
+enum ControlsPosition {
+  top, // Defines the controls position to the top
+  bottom, // Defines the controls position to the bottom
+  both, // Defines the controls position to both top and bottom
+  none, // Defines the controls position to none (no controls)
+}
+
 ///[ImagePainter] widget.
 @immutable
 class ImagePainter extends StatefulWidget {
-  const ImagePainter._(
-      {Key? key,
-      this.assetPath,
-      this.networkUrl,
-      this.byteArray,
-      this.file,
-      this.height,
-      this.width,
-      this.placeHolder,
-      this.isScalable,
-      this.brushIcon,
-      this.clearAllIcon,
-      this.colorIcon,
-      this.undoIcon,
-      this.isSignature = false,
-      this.controlsAtTop = true,
-      this.signatureBackgroundColor,
-      this.colors,
-      this.initialPaintMode})
-      : super(key: key);
+  const ImagePainter._({
+    Key? key,
+    this.assetPath,
+    this.networkUrl,
+    this.byteArray,
+    this.file,
+    this.height,
+    this.width,
+    this.placeHolder,
+    this.isScalable,
+    this.brushIcon,
+    this.clearAllIcon,
+    this.colorIcon,
+    this.undoIcon,
+    this.isSignature = false,
+    this.controlsPosition = ControlsPosition.top,
+    this.signatureBackgroundColor,
+    this.colors,
+    this.initialPaintMode,
+    this.initialColor,
+    this.initialStrokeWidth,
+  }) : super(key: key);
 
   ///Constructor for loading image from network url.
   factory ImagePainter.network(
@@ -54,6 +63,9 @@ class ImagePainter extends StatefulWidget {
     Widget? clearAllIcon,
     Widget? colorIcon,
     PaintMode? initialPaintMode,
+    ControlsPosition? controlsPosition,
+    Color? initialColor,
+    double? initialStrokeWidth,
   }) {
     return ImagePainter._(
       key: key,
@@ -67,22 +79,29 @@ class ImagePainter extends StatefulWidget {
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       initialPaintMode: initialPaintMode,
+      controlsPosition: controlsPosition ?? ControlsPosition.top,
+      initialColor: initialColor,
     );
   }
 
   ///Constructor for loading image from assetPath.
-  factory ImagePainter.asset(String path,
-      {required Key key,
-      double? height,
-      double? width,
-      bool? scalable,
-      Widget? placeholderWidget,
-      List<Color>? colors,
-      Widget? brushIcon,
-      Widget? undoIcon,
-      Widget? clearAllIcon,
-      Widget? colorIcon,
-      PaintMode? initialPaintMode}) {
+  factory ImagePainter.asset(
+    String path, {
+    required Key key,
+    double? height,
+    double? width,
+    bool? scalable,
+    Widget? placeholderWidget,
+    List<Color>? colors,
+    Widget? brushIcon,
+    Widget? undoIcon,
+    Widget? clearAllIcon,
+    Widget? colorIcon,
+    ControlsPosition? controlsPosition,
+    PaintMode? initialPaintMode,
+    Color? initialColor,
+    double? initialStrokeWidth,
+  }) {
     return ImagePainter._(
       key: key,
       assetPath: path,
@@ -96,22 +115,30 @@ class ImagePainter extends StatefulWidget {
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       initialPaintMode: initialPaintMode,
+      controlsPosition: controlsPosition ?? ControlsPosition.top,
+      initialColor: initialColor,
+      initialStrokeWidth: initialStrokeWidth,
     );
   }
 
   ///Constructor for loading image from [File].
-  factory ImagePainter.file(File file,
-      {required Key key,
-      double? height,
-      double? width,
-      bool? scalable,
-      Widget? placeholderWidget,
-      List<Color>? colors,
-      Widget? brushIcon,
-      Widget? undoIcon,
-      Widget? clearAllIcon,
-      Widget? colorIcon,
-      PaintMode? initialPaintMode}) {
+  factory ImagePainter.file(
+    File file, {
+    required Key key,
+    double? height,
+    double? width,
+    bool? scalable,
+    Widget? placeholderWidget,
+    List<Color>? colors,
+    Widget? brushIcon,
+    Widget? undoIcon,
+    Widget? clearAllIcon,
+    Widget? colorIcon,
+    ControlsPosition? controlsPosition,
+    PaintMode? initialPaintMode,
+    Color? initialColor,
+    double? initialStrokeWidth,
+  }) {
     return ImagePainter._(
       key: key,
       file: file,
@@ -125,48 +152,61 @@ class ImagePainter extends StatefulWidget {
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       initialPaintMode: initialPaintMode,
+      controlsPosition: controlsPosition ?? ControlsPosition.top,
+      initialColor: initialColor,
+      initialStrokeWidth: initialStrokeWidth,
     );
   }
 
   ///Constructor for loading image from memory.
-  factory ImagePainter.memory(Uint8List byteArray,
-      {required Key key,
-      double? height,
-      double? width,
-      bool? scalable,
-      Widget? placeholderWidget,
-      List<Color>? colors,
-      Widget? brushIcon,
-      Widget? undoIcon,
-      Widget? clearAllIcon,
-      Widget? colorIcon,
-      PaintMode? initialPaintMode}) {
+  factory ImagePainter.memory(
+    Uint8List byteArray, {
+    required Key key,
+    double? height,
+    double? width,
+    bool? scalable,
+    Widget? placeholderWidget,
+    List<Color>? colors,
+    Widget? brushIcon,
+    Widget? undoIcon,
+    Widget? clearAllIcon,
+    Widget? colorIcon,
+    PaintMode? initialPaintMode,
+    ControlsPosition? controlsPosition,
+    Color? initialColor,
+    double? initialStrokeWidth,
+  }) {
     return ImagePainter._(
-        key: key,
-        byteArray: byteArray,
-        height: height,
-        width: width,
-        placeHolder: placeholderWidget,
-        isScalable: scalable ?? false,
-        colors: colors,
-        brushIcon: brushIcon,
-        undoIcon: undoIcon,
-        colorIcon: colorIcon,
-        clearAllIcon: clearAllIcon,
-        initialPaintMode: initialPaintMode);
+      key: key,
+      byteArray: byteArray,
+      height: height,
+      width: width,
+      placeHolder: placeholderWidget,
+      isScalable: scalable ?? false,
+      colors: colors,
+      brushIcon: brushIcon,
+      undoIcon: undoIcon,
+      colorIcon: colorIcon,
+      clearAllIcon: clearAllIcon,
+      initialPaintMode: initialPaintMode,
+      controlsPosition: controlsPosition ?? ControlsPosition.top,
+      initialColor: initialColor,
+      initialStrokeWidth: initialStrokeWidth,
+    );
   }
 
   ///Constructor for signature painting.
-  factory ImagePainter.signature(
-      {required Key key,
-      Color? signatureBgColor,
-      double? height,
-      double? width,
-      List<Color>? colors,
-      Widget? brushIcon,
-      Widget? undoIcon,
-      Widget? clearAllIcon,
-      Widget? colorIcon}) {
+  factory ImagePainter.signature({
+    required Key key,
+    Color? signatureBgColor,
+    double? height,
+    double? width,
+    List<Color>? colors,
+    Widget? brushIcon,
+    Widget? undoIcon,
+    Widget? clearAllIcon,
+    Widget? colorIcon,
+  }) {
     return ImagePainter._(
       key: key,
       height: height,
@@ -179,6 +219,7 @@ class ImagePainter extends StatefulWidget {
       undoIcon: undoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
+      controlsPosition: ControlsPosition.none,
     );
   }
 
@@ -228,12 +269,18 @@ class ImagePainter extends StatefulWidget {
   ///Widget for clearing all actions on control bar.
   final Widget? clearAllIcon;
 
-  ///Define where the controls is located.
-  ///`true` represents top.
-  final bool controlsAtTop;
+  ///Define where the controls position
+  /// defaults to top
+  final ControlsPosition controlsPosition;
 
   ///Initial PaintMode.
   final PaintMode? initialPaintMode;
+
+  ///Initial Color
+  final Color? initialColor;
+
+  ///Initial brush stroke width
+  final double? initialStrokeWidth;
 
   @override
   ImagePainterState createState() => ImagePainterState();
@@ -260,8 +307,11 @@ class ImagePainterState extends State<ImagePainter> {
       _controller = ValueNotifier(
           const Controller(mode: PaintMode.freeStyle, color: Colors.black));
     } else {
-      _controller = ValueNotifier(
-          const Controller().copyWith(mode: widget.initialPaintMode));
+      _controller = ValueNotifier(const Controller().copyWith(
+        mode: widget.initialPaintMode,
+        color: widget.initialColor,
+        strokeWidth: widget.initialStrokeWidth,
+      ));
     }
     _textController = TextEditingController();
     _isLoaded = ValueNotifier<bool>(false);
@@ -375,7 +425,9 @@ class ImagePainterState extends State<ImagePainter> {
       width: widget.width ?? double.maxFinite,
       child: Column(
         children: [
-          if (widget.controlsAtTop) _buildControls(),
+          if (widget.controlsPosition == ControlsPosition.top ||
+              widget.controlsPosition == ControlsPosition.both)
+            _buildControls(),
           Expanded(
             child: FittedBox(
               alignment: FractionalOffset.center,
@@ -415,7 +467,9 @@ class ImagePainterState extends State<ImagePainter> {
               ),
             ),
           ),
-          if (!widget.controlsAtTop) _buildControls(),
+          if (widget.controlsPosition == ControlsPosition.bottom ||
+              widget.controlsPosition == ControlsPosition.both)
+            _buildControls(),
           SizedBox(height: MediaQuery.of(context).padding.bottom)
         ],
       ),

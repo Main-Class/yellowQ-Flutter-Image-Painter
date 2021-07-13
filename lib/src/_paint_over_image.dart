@@ -47,6 +47,7 @@ class ImagePainter extends StatefulWidget {
     this.initialPaintMode,
     this.initialColor,
     this.initialStrokeWidth,
+    this.onChanged,
   }) : super(key: key);
 
   ///Constructor for loading image from network url.
@@ -66,6 +67,7 @@ class ImagePainter extends StatefulWidget {
     ControlsPosition? controlsPosition,
     Color? initialColor,
     double? initialStrokeWidth,
+    ValueChanged<Uint8List?>? onChanged,
   }) {
     return ImagePainter._(
       key: key,
@@ -81,6 +83,7 @@ class ImagePainter extends StatefulWidget {
       initialPaintMode: initialPaintMode,
       controlsPosition: controlsPosition ?? ControlsPosition.top,
       initialColor: initialColor,
+      onChanged: onChanged,
     );
   }
 
@@ -101,6 +104,7 @@ class ImagePainter extends StatefulWidget {
     PaintMode? initialPaintMode,
     Color? initialColor,
     double? initialStrokeWidth,
+    ValueChanged<Uint8List?>? onChanged,
   }) {
     return ImagePainter._(
       key: key,
@@ -118,6 +122,7 @@ class ImagePainter extends StatefulWidget {
       controlsPosition: controlsPosition ?? ControlsPosition.top,
       initialColor: initialColor,
       initialStrokeWidth: initialStrokeWidth,
+      onChanged: onChanged,
     );
   }
 
@@ -138,6 +143,7 @@ class ImagePainter extends StatefulWidget {
     PaintMode? initialPaintMode,
     Color? initialColor,
     double? initialStrokeWidth,
+    ValueChanged<Uint8List?>? onChanged,
   }) {
     return ImagePainter._(
       key: key,
@@ -155,6 +161,7 @@ class ImagePainter extends StatefulWidget {
       controlsPosition: controlsPosition ?? ControlsPosition.top,
       initialColor: initialColor,
       initialStrokeWidth: initialStrokeWidth,
+      onChanged: onChanged,
     );
   }
 
@@ -175,6 +182,7 @@ class ImagePainter extends StatefulWidget {
     ControlsPosition? controlsPosition,
     Color? initialColor,
     double? initialStrokeWidth,
+    ValueChanged<Uint8List?>? onChanged,
   }) {
     return ImagePainter._(
       key: key,
@@ -192,6 +200,7 @@ class ImagePainter extends StatefulWidget {
       controlsPosition: controlsPosition ?? ControlsPosition.top,
       initialColor: initialColor,
       initialStrokeWidth: initialStrokeWidth,
+      onChanged: onChanged,
     );
   }
 
@@ -206,6 +215,7 @@ class ImagePainter extends StatefulWidget {
     Widget? undoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
+    ValueChanged<Uint8List?>? onChanged,
   }) {
     return ImagePainter._(
       key: key,
@@ -220,6 +230,7 @@ class ImagePainter extends StatefulWidget {
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       controlsPosition: ControlsPosition.none,
+      onChanged: onChanged,
     );
   }
 
@@ -282,6 +293,9 @@ class ImagePainter extends StatefulWidget {
   ///Initial brush stroke width
   final double? initialStrokeWidth;
 
+  ///Listener for image changes
+  final ValueChanged<Uint8List?>? onChanged;
+
   @override
   ImagePainterState createState() => ImagePainterState();
 }
@@ -298,6 +312,8 @@ class ImagePainterState extends State<ImagePainter> {
   late final TextEditingController _textController;
   Offset? _start, _end;
   int _strokeMultiplier = 1;
+
+  Timer? _changeNotifier;
 
   @override
   void initState() {
@@ -519,6 +535,8 @@ class ImagePainterState extends State<ImagePainter> {
   }
 
   _scaleStartGesture(ScaleStartDetails onStart) {
+    _changeNotifier?.cancel();
+
     setState(() {
       _start = onStart.focalPoint;
       _points.add(_start);
@@ -527,6 +545,8 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Fires while user is interacting with the screen to record painting.
   void _scaleUpdateGesture(ScaleUpdateDetails onUpdate, Controller ctrl) {
+    _changeNotifier?.cancel();
+
     setState(
       () {
         _inDrag = true;
@@ -547,6 +567,8 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Fires when user stops interacting with the screen.
   void _scaleEndGesture(ScaleEndDetails onEnd, Controller controller) {
+    _changeNotifier?.cancel();
+
     setState(() {
       _inDrag = false;
       if (_start != null &&
@@ -565,7 +587,7 @@ class ImagePainterState extends State<ImagePainter> {
     });
   }
 
-  void _addEndPoints() => _paintHistory.add(
+  void _addEndPoints() => _addPath(
         PaintInfo(
           offset: <Offset?>[_start, _end],
           painter: _painter,
@@ -573,7 +595,7 @@ class ImagePainterState extends State<ImagePainter> {
         ),
       );
 
-  void _addFreeStylePoints() => _paintHistory.add(
+  void _addFreeStylePoints() => _addPath(
         PaintInfo(
           offset: <Offset?>[..._points],
           painter: _painter,
@@ -684,7 +706,7 @@ class ImagePainterState extends State<ImagePainter> {
         onFinished: () {
       if (_textController.text != '') {
         setState(() {
-          _paintHistory.add(
+          _addPath(
             PaintInfo(
                 mode: PaintMode.text,
                 text: _textController.text,
@@ -771,6 +793,18 @@ class ImagePainterState extends State<ImagePainter> {
         ],
       ),
     );
+  }
+
+  _addPath(PaintInfo paintInfo) {
+    _paintHistory.add(paintInfo);
+
+    if (widget.onChanged != null) {
+      _changeNotifier = Timer(const Duration(milliseconds: 500), () async {
+        Uint8List? image = await exportImage();
+
+        widget.onChanged!(image);
+      });
+    }
   }
 }
 
